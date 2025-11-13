@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GptAccess - Premium GPT Authentication</title>
+    <meta name="description" content="Professional authentication system for Custom GPTs. Secure token-based access control.">
+    <style>
+        /* ==========================================================================
+           GptAccess - Final Corrected Version
+           ========================================================================== */
+        
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        
+        :root {
+            /* Brand Colors */
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #6366f1;
+            --secondary: #7c3aed;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            /* Neutrals */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Spacing System */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            
+            /* Typography */
+            --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Transitions */
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: var(--font-system);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--gray-900);
+        }
+        
+        /* ==========================================================================
+           Layout Components
+           ========================================================================== */
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-6);
+        }
+        
+        /* Header Navigation */
+        .header-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: var(--space-4) 0;
+            margin-bottom: var(--space-8);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--space-6);
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: var(--space-12) 0;
+            color: white;
+            margin-bottom: var(--space-8);
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+            letter-spacing: -0.025em;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.375rem;
+            opacity: 0.9;
+            font-weight: 400;
+            margin-bottom: var(--space-8);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            margin-bottom: var(--space-12);
+        }
+        
+        /* ==========================================================================
+           Card System
+           ========================================================================== */
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--space-8);
+            margin-bottom: var(--space-6);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .card-icon {
+            font-size: 1.75rem;
+        }
+        
+        /* Features Section */
+        .features-section {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-12);
+            margin-bottom: var(--space-8);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-12);
+            color: var(--gray-900);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-8);
+        }
+        
+        .feature-card {
+            text-align: left;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-100);
+            transition: var(--transition);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-4);
+            display: block;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: var(--space-3);
+            color: var(--gray-900);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* ==========================================================================
+           Grid System
+           ========================================================================== */
+        
+        .grid {
+            display: grid;
+            gap: var(--space-6);
+        }
+        
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+        
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        
+        /* ==========================================================================
+           Form Components
+           ========================================================================== */
+        
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+        
+        .label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: var(--space-2);
+        }
+        
+        .input {
+            width: 100%;
+            padding: var(--space-4);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        /* ==========================================================================
+           Button System
+           ========================================================================== */
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-4) var(--space-6);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-height: 48px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+        
+        .btn-success {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* ==========================================================================
+           Token Display
+           ========================================================================== */
+        
+        .token-container {
+            background: var(--gray-50);
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            position: relative;
+            margin: var(--space-6) 0;
+        }
+        
+        .token-display {
+            font-family: var(--font-mono);
+            background: var(--white);
+            padding: var(--space-5);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            word-break: break-all;
+            font-size: 0.875rem;
+            color: var(--gray-800);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: var(--space-4);
+            right: var(--space-4);
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .copy-btn:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+        
+        /* ==========================================================================
+           Status & Badge System
+           ========================================================================== */
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .status-expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-trial {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        /* ==========================================================================
+           Enhanced Modal System
+           ========================================================================== */
+        
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: var(--space-4);
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.9);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: var(--space-8);
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: var(--space-6);
+            right: var(--space-6);
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Enhanced Tab System */
+        .tab-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: var(--space-4) var(--space-6);
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--white);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            color: var(--primary-light);
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: var(--space-8);
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Content Organization */
+        .step-list {
+            counter-reset: step-counter;
+            margin: var(--space-6) 0;
+        }
+        
+        .step-item {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+            padding: var(--space-5);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .step-item::before {
+            content: counter(step-counter);
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            margin: 0 0 var(--space-2) 0;
+            color: var(--gray-900);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .step-content p {
+            margin: 0;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+        
+        /* Info Boxes */
+        .info-box {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin: var(--space-4) 0;
+            border-left: 4px solid var(--gray-300);
+        }
+        
+        .info-box.success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            border-left-color: var(--accent);
+        }
+        
+        .info-box.warning {
+            background: #fffbeb;
+            border-color: #fed7aa;
+            border-left-color: var(--warning);
+        }
+        
+        .info-box.info {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            border-left-color: var(--info);
+        }
+        
+        .info-box.danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            border-left-color: var(--danger);
+        }
+        
+        .info-box h4 {
+            margin: 0 0 var(--space-3) 0;
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 1.1rem;
+        }
+        
+        .info-box ul {
+            margin: var(--space-3) 0 0 var(--space-4);
+            padding: 0;
+        }
+        
+        .info-box li {
+            margin-bottom: var(--space-2);
+            line-height: 1.5;
+        }
+        
+        .info-box p {
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        /* Code Blocks */
+        .code-block {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: var(--space-5);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin: var(--space-4) 0;
+            overflow-x: auto;
+            border: 1px solid var(--gray-700);
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: 'Code';
+            position: absolute;
+            top: var(--space-2);
+            right: var(--space-3);
+            background: var(--primary);
+            color: white;
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Modal Footer */
+        .modal-footer {
+            padding: var(--space-6) var(--space-8);
+            border-top: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            text-align: center;
+        }
+        
+        /* ==========================================================================
+           Utility Classes
+           ========================================================================== */
+        
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .font-mono { font-family: var(--font-mono); }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .mt-4 { margin-top: var(--space-4); }
+        .mb-4 { margin-bottom: var(--space-4); }
+        .mb-6 { margin-bottom: var(--space-6); }
+        
+        /* ==========================================================================
+           Alerts & Notifications
+           ========================================================================== */
+        
+        .alerts {
+            position: fixed;
+            top: var(--space-6);
+            right: var(--space-6);
+            z-index: 10000;
+            max-width: 400px;
+        }
+        
+        .alert {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--accent);
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .alert.error { border-left-color: var(--danger); }
+        .alert.warning { border-left-color: var(--warning); }
+        .alert.info { border-left-color: var(--primary); }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* ==========================================================================
+           Responsive Design
+           ========================================================================== */
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-4);
+            }
+            
+            .nav-container {
+                padding: 0 var(--space-4);
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: var(--space-6);
+            }
+            
+            .features-section {
+                padding: var(--space-8);
+            }
+            
+            .modal-content {
+                max-width: 95vw;
+                max-height: 90vh;
+            }
+            
+            .modal-header,
+            .tab-content {
+                padding: var(--space-6);
+            }
+            
+            .modal-footer {
+                padding: var(--space-4) var(--space-6);
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hero-actions .btn {
+                width: auto;
+                min-width: 200px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-3);
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                border-bottom: none;
+                border-right: 3px solid transparent;
+                text-align: left;
+            }
+            
+            .tab-btn.active {
+                border-right-color: var(--primary);
+                border-bottom-color: transparent;
+            }
+            
+            .step-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .step-item::before {
+                align-self: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .tab-content,
+            .modal-header {
+                padding: var(--space-4);
+            }
+            
+            .code-block {
+                font-size: 0.8rem;
+                padding: var(--space-3);
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header-nav">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">🔐</span>
+                <span>GptAccess</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#features" class="nav-link" onclick="scrollToSection('features')">Features</a>
+                <a href="#pricing" class="nav-link" onclick="showPricing()">Pricing</a>
+                <a href="#" class="nav-link" onclick="showLogin()">Login</a>
+                <a href="#api-docs" class="nav-link" onclick="showApiDocs()">API Docs</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>🚀 Secure Your AI Services</h1>
+            <p class="subtitle">Professional authentication system for Custom GPTs, Gemini, and other AI services. Control access, manage subscriptions, and monetize your AI expertise.</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" onclick="showSignup()">Start Free Trial</button>
+                <button class="btn btn-secondary" onclick="showLogin()">Existing User</button>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <h2 class="section-title">✨ Why Choose GptAccess?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <h3>Secure Authentication</h3>
+                    <p>JWT-based token system with enterprise-grade security. Each token is unique and time-limited.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💰</span>
+                    <h3>Monetize Your GPTs</h3>
+                    <p>Turn your Custom GPTs into premium services. Control access and generate recurring revenue.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3>Usage Analytics</h3>
+                    <p>Track usage patterns, user engagement, and revenue metrics with detailed analytics.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Easy Integration</h3>
+                    <p>Simple API integration with Custom GPT Actions. Setup in minutes, not hours.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Multi-GPT Support</h3>
+                    <p>One platform for multiple Custom GPTs. Each GPT can have its own subscription model.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <h3>Enterprise Ready</h3>
+                    <p>Scalable infrastructure with 99.9% uptime. Perfect for business and enterprise use.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Signup Section -->
+            <section id="signup-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">🚀</span>
+                            Start Your Free 3-Day Trial
+                        </h2>
+                        <span class="status status-trial">Free Trial</span>
+                    </div>
+                    
+                    <form id="signup-form" onsubmit="return handleSignup(event)">
+                        <div class="form-group">
+                            <label class="label" for="email">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="input" 
+                                placeholder="your.email@example.com"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="label" for="name">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="input" 
+                                placeholder="John Doe"
+                                required
+                            >
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="signup-btn">
+                            <span>✨</span>
+                            Get My Access Token
+                        </button>
+                    </form>
+                    
+                    <div class="info-box success mt-4">
+                        <h4>🎁 Your Free Trial Includes:</h4>
+                        <ul>
+                            <li>✅ 3 days full access</li>
+                            <li>✅ 100 API calls</li>
+                            <li>✅ All premium features</li>
+                            <li>✅ Priority support</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="hidden">
+                <div class="grid grid-2">
+                    <!-- Token Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span class="card-icon">🎫</span>
+                                Your Access Token
+                            </h3>
+                            <span class="status status-active" id="token-status">Active</span>
+                        </div>
+                        
+                        <div class="token-container">
+                            <button class="copy-btn" onclick="copyToken()">📋 Copy</button>
+                            <div class="token-display" id="token-display">
+                                Loading your secure token...
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="refreshToken()" id="refresh-btn">
+                                <span>🔄</span>
+                                Refresh Token
+                            </button>
+                            <button class="btn btn-primary" onclick="showInstructions()">
+                                <span>📖</span>
+                                Setup Guide
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Account Status Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span class="card-icon">📊</span>
+                                Account Status
+                            </h3>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--space-6);">
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-4) 0; border-bottom: 1px solid var(--gray-200);">
+                                <span class="font-semibold">Plan:</span>
+                                <span id="plan-type">Loading...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-4) 0; border-bottom: 1px solid var(--gray-200);">
+                                <span class="font-semibold">Days Left:</span>
+                                <span id="days-left">Loading...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-4) 0;">
+                                <span class="font-semibold">Expires:</span>
+                                <span id="expires-at">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="showUpgrade()">
+                            <span>⭐</span>
+                            Upgrade Plan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Start Guide -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-icon">🚀</span>
+                            How to Use Your Token
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-3">
+                        <div class="info-box">
+                            <h4>1. Copy Your Token</h4>
+                            <p>Click the green "Copy" button above to copy your secure access token.</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>2. Open Custom GPT</h4>
+                            <p>Navigate to your Custom GPT that has GptAccess integration enabled.</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>3. Use This Format</h4>
+                            <code style="background: var(--gray-100); padding: var(--space-2); border-radius: var(--radius-sm); display: block; margin-top: var(--space-2);">
+                                My token is [paste_your_token]. Help me with [your_request].
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sign Out -->
+                <div class="text-center">
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <span>🚪</span>
+                        Sign Out
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Enhanced Setup Instructions Modal -->
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🚀 How to Use GptAccess</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="tab-container">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="getting-started">Getting Started</button>
+                        <button class="tab-btn" data-tab="using-token">Using Your Token</button>
+                        <button class="tab-btn" data-tab="troubleshooting">Troubleshooting</button>
+                    </div>
+                    
+                    <!-- Getting Started Tab -->
+                    <div id="getting-started" class="tab-content active">
+                        <div class="info-section">
+                            <h3>📝 Quick Setup</h3>
+                            <div class="step-list">
+                                <div class="step-item">
+                                    <div class="step-content">
+                                        <h4>Copy Your Token</h4>
+                                        <p>Use the copy button in your dashboard to copy your unique access token.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-item">
+                                    <div class="step-content">
+                                        <h4>Open Custom GPT</h4>
+                                        <p>Navigate to your Custom GPT that has GptAccess integration enabled.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-item">
+                                    <div class="step-content">
+                                        <h4>Use Authentication Format</h4>
+                                        <p>Type the exact format shown in the "Using Your Token" tab.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Using Token Tab -->
+                    <div id="using-token" class="tab-content">
+                        <div class="info-section">
+                            <h3>🤖 Custom GPT Integration</h3>
+                            
+                            <div class="info-box warning">
+                                <h4>📝 Exact Format to Use:</h4>
+                                <div class="code-block">My token is [paste_your_token_here]. Help me with [your_request].</div>
+                            </div>
+                            
+                            <h3>✅ Working Examples:</h3>
+                            
+                            <div class="info-box">
+                                <h4>VPS Setup</h4>
+                                <p><em>My token is eyJhbGci... Help me install nginx on Ubuntu.</em></p>
+                            </div>
+                            
+                            <div class="info-box">
+                                <h4>Server Configuration</h4>
+                                <p><em>My token is eyJhbGci... Configure SSL certificate for my domain.</em></p>
+                            </div>
+                            
+                            <div class="info-box">
+                                <h4>Troubleshooting</h4>
+                                <p><em>My token is eyJhbGci... My server is showing 500 error, help debug.</em></p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h3>🔗 API Integration</h3>
+                            
+                            <h4>Endpoint:</h4>
+                            <div class="code-block">https://script.google.com/macros/s/YOUR_ID/exec</div>
+                            
+                            <h4>Request Format:</h4>
+                            <div class="code-block">{
+  "action": "validate_token",
+  "token": "user_token_here"
+}</div>
+                            
+                            <h4>Response:</h4>
+                            <div class="code-block">{
+  "proceed": true,
+  "message": "Access granted",
+  "days_remaining": 2
+}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Troubleshooting Tab -->
+                    <div id="troubleshooting" class="tab-content">
+                        <div class="info-section">
+                            <h3>🔧 Common Issues</h3>
+                            
+                            <div class="info-box danger">
+                                <h4>Token Not Working?</h4>
+                                <ul>
+                                    <li>Ensure you copied the <strong>complete token</strong></li>
+                                    <li>Check for extra spaces at beginning/end</li>
+                                    <li>Try refreshing your token</li>
+                                    <li>Verify trial hasn't expired</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-box danger">
+                                <h4>GPT Not Responding?</h4>
+                                <ul>
+                                    <li>Use exact format: "My token is..."</li>
+                                    <li>Wait 5-10 seconds for processing</li>
+                                    <li>Try regenerating the response</li>
+                                    <li>Check if GPT has actions enabled</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-box warning">
+                                <h4>Network Error?</h4>
+                                <ul>
+                                    <li>Check internet connection</li>
+                                    <li>Refresh the page</li>
+                                    <li>Clear browser cache</li>
+                                    <li>Try different browser</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box info">
+                            <h4>📞 Still Need Help?</h4>
+                            <p>Email: <strong>support@banirisset.com</strong></p>
+                            <p>Response time: Within 24 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal()">
+                    <span>✅</span>
+                    Got It!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Container -->
+    <div id="alerts" class="alerts"></div>
+
+    <!-- JavaScript -->
+    <script>
+        // Configuration
+        const CONFIG = {
+            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxj8bsOv3VPCfRX4S_gN7bqneS27CKx7oXzwBLoIlsKNhhBCa3Kng4Tq1sSs2uufsWJbA/exec',
+            API_TIMEOUT: 10000,
+            RETRY_ATTEMPTS: 3
+        };
+
+        // State
+        let currentUser = JSON.parse(localStorage.getItem('gptaccess_user') || 'null');
+        let currentToken = localStorage.getItem('gptaccess_token');
+
+        // Alert System
+        function showAlert(message, type = 'success') {
+            const alerts = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--gray-500);">&times;</button>
+                </div>
+            `;
+            alerts.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Smooth Scrolling
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Navigation Functions
+        function showSignup() {
+            document.getElementById('signup-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            scrollToSection('signup-section');
+        }
+
+        function showLogin() {
+            showAlert('🔗 Login functionality coming soon! Use signup for now.', 'info');
+        }
+
+        function showPricing() {
+            showAlert('💳 Pricing page coming soon! Contact support@banirisset.com for plans.', 'info');
+        }
+
+        function showApiDocs() {
+            showAlert('📚 API documentation coming soon! Check setup guide for integration details.', 'info');
+        }
+
+        // Loading States
+        function setButtonLoading(buttonId, loading = true) {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            
+            if (loading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">⟳</span> Processing...';
+            } else {
+                btn.disabled = false;
+                if (buttonId === 'signup-btn') {
+                    btn.innerHTML = '<span>✨</span> Get My Access Token';
+                } else if (buttonId === 'refresh-btn') {
+                    btn.innerHTML = '<span>🔄</span> Refresh Token';
+                }
+            }
+        }
+
+        // API Functions
+        async function apiRequest(data) {
+            try {
+                const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (error) {
+                throw new Error(`API Error: ${error.message}`);
+            }
+        }
+
+        // Signup Handler
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const name = document.getElementById('name').value.trim();
+
+            if (!email || !name) {
+                showAlert('Please fill in all fields', 'error');
+                return false;
+            }
+
+            if (!email.includes('@')) {
+                showAlert('Please enter a valid email address', 'error');
+                return false;
+            }
+
+            setButtonLoading('signup-btn', true);
+
+            try {
+                // Check if user exists
+                const existingUser = await apiRequest({
+                    action: "get_user_by_email",
+                    email: email
+                });
+
+                if (existingUser.found) {
+                    showAlert('User already exists with this email. Please use a different email.', 'error');
+                    return false;
+                }
+
+                // Create user
+                const userId = await apiRequest({
+                    action: "create_user",
+                    email: email,
+                    name: name
+                });
+
+                if (!userId) {
+                    throw new Error('Failed to create user account');
+                }
+
+                // Generate token
+                const token = await apiRequest({
+                    action: "generate_token",
+                    user_id: userId
+                });
+
+                if (!token) {
+                    throw new Error('Failed to generate access token');
+                }
+
+                // Store credentials
+                currentUser = { email, name, user_id: userId };
+                currentToken = token;
+                localStorage.setItem('gptaccess_user', JSON.stringify(currentUser));
+                localStorage.setItem('gptaccess_token', currentToken);
+
+                showAlert('🎉 Account created successfully! Welcome to GptAccess!');
+                showDashboard();
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert(`Error: ${error.message}. Please try again.`, 'error');
+            } finally {
+                setButtonLoading('signup-btn', false);
+            }
+
+            return false;
+        }
+
+        // Dashboard Functions
+        function showDashboard() {
+            document.getElementById('signup-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            
+            // Update token display
+            if (currentToken) {
+                document.getElementById('token-display').textContent = currentToken;
+            }
+            
+            // Load user data
+            refreshToken();
+        }
+
+        async function refreshToken() {
+            if (!currentToken) {
+                showAlert('No token to refresh', 'error');
+                return;
+            }
+
+            setButtonLoading('refresh-btn', true);
+
+            try {
+                const result = await apiRequest({
+                    action: "validate_token",
+                    token: currentToken
+                });
+
+                if (result.valid && result.user_id) {
+                    const subscription = await apiRequest({
+                        action: "get_subscription",
+                        user_id: result.user_id
+                    });
+                    
+                    updateStatus(subscription);
+                    showAlert('✅ Token validated successfully!');
+                } else {
+                    updateStatus({ active: false, message: 'Token is invalid or expired' });
+                    showAlert('❌ Token is invalid or expired', 'error');
+                }
+            } catch (error) {
+                console.error('Token validation error:', error);
+                showAlert(`Failed to validate token: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading('refresh-btn', false);
+            }
+        }
+
+        function updateStatus(subscription) {
+            const statusEl = document.getElementById('token-status');
+            const planEl = document.getElementById('plan-type');
+            const daysEl = document.getElementById('days-left');
+            const expiresEl = document.getElementById('expires-at');
+
+            if (subscription.active) {
+                statusEl.className = 'status status-active';
+                statusEl.textContent = 'Active';
+                planEl.textContent = subscription.plan_type || 'Trial';
+                daysEl.textContent = subscription.days_remaining || 0;
+                
+                if (subscription.end_date) {
+                    expiresEl.textContent = new Date(subscription.end_date).toLocaleDateString();
+                }
+            } else {
+                statusEl.className = 'status status-expired';
+                statusEl.textContent = 'Expired';
+                planEl.textContent = 'None';
+                daysEl.textContent = '0';
+                expiresEl.textContent = 'Expired';
+            }
+        }
+
+        async function copyToken() {
+            const tokenText = document.getElementById('token-display').textContent;
+            
+            if (!tokenText || tokenText.includes('Loading')) {
+                showAlert('No token available to copy', 'error');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(tokenText);
+                showAlert('📋 Token copied to clipboard!');
+            } catch (error) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = tokenText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showAlert('📋 Token copied to clipboard!');
+            }
+        }
+
+        // Modal Functions
+        function showInstructions() {
+            const modal = document.getElementById('instructions-modal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('instructions-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Tab System
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+
+            // Mark button as active
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('gptaccess_user');
+            localStorage.removeItem('gptaccess_token');
+            currentUser = null;
+            currentToken = null;
+            showSignup();
+            showAlert('👋 Signed out successfully');
+        }
+
+        function showUpgrade() {
+            showAlert('🚀 Upgrade options coming soon! Contact support@banirisset.com for premium plans.', 'info');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize dashboard if user is logged in
+            if (currentUser && currentToken) {
+                showDashboard();
+            }
+
+            // Tab button event listeners
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+
+            // Modal close on outside click
+            document.getElementById('instructions-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    closeModal();
+                }
+            });
+
+            // Escape key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        });
+
+        // Add spinning animation for loading
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
